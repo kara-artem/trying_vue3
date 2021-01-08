@@ -1,26 +1,53 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js App" />
+  <main>
+    <TaskInput @onAddTask="addTask"></TaskInput>
+    <ul class="task-list my-list">
+      <li v-for="item in taskList" :key="item.id">
+        <TaskCard @onRemove="removeTask(item.id)" @onDone="setDoneTask(item.id)" :model="item"></TaskCard>
+      </li>
+    </ul>
+  </main>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
-
-export default {
-  name: "App",
-  components: {
-    HelloWorld
-  }
-};
+  import TaskInput from './components/TaskInput.vue';
+  import TaskCard from './components/TaskCard.vue';
+  import { ref } from 'vue';
+  export default {
+    name: 'App',
+    components: {
+      TaskCard,
+      TaskInput,
+    },
+    setup() {
+      const taskList = ref([{ id: 0, title: 'Create task', description: 'and complete it', status: false }]);
+      const countID = ref(0);
+      const addTask = ({ title, description }) => {
+        countID.value += 1;
+        taskList.value = [...taskList.value, { id: countID.value, title, description, status: false }];
+      };
+      const setDoneTask = (id) => {
+        taskList.value = taskList.value.map((x) => {
+          if (x.id === id) x.status = true;
+          return x;
+        });
+      };
+      const removeTask = (id) => {
+        taskList.value = taskList.value.filter((x) => x.id !== id);
+        countID.value = 0;
+      };
+      return {
+        taskList,
+        addTask,
+        removeTask,
+        setDoneTask,
+      };
+    },
+  };
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+<style scoped>
+  .task-list {
+    list-style: none;
+  }
 </style>
